@@ -59,6 +59,10 @@ interface DiscoverMovieOptions {
   page?: number;
   includeAdult?: boolean;
   language?: string;
+  limitRegion?: string;
+  limitOriginalLanguage?: string;
+  minRating?: string;
+  maxRating?: string;
   primaryReleaseDateGte?: string;
   primaryReleaseDateLte?: string;
   withRuntimeGte?: string;
@@ -79,6 +83,8 @@ interface DiscoverMovieOptions {
 interface DiscoverTvOptions {
   page?: number;
   language?: string;
+  limitRegion?: string;
+  limitOriginalLanguage?: string;
   firstAirDateGte?: string;
   firstAirDateLte?: string;
   withRuntimeGte?: string;
@@ -454,6 +460,10 @@ class TheMovieDb extends ExternalAPI {
     page = 1,
     includeAdult = false,
     language = 'en',
+    limitRegion = 'US',
+    limitOriginalLanguage = 'en',
+    minRating = 'G',
+    maxRating = 'PG',
     primaryReleaseDateGte,
     primaryReleaseDateLte,
     originalLanguage,
@@ -486,13 +496,11 @@ class TheMovieDb extends ExternalAPI {
           page,
           include_adult: includeAdult,
           language,
-          region: this.region,
-          with_original_language:
-            originalLanguage && originalLanguage !== 'all'
-              ? originalLanguage
-              : originalLanguage === 'all'
-              ? undefined
-              : this.originalLanguage,
+          region: limitRegion,
+          with_original_language: limitOriginalLanguage,
+          certification_country: limitRegion,
+          'certification.gte': minRating,
+          'certification.lte': maxRating,
           // Set our release date values, but check if one is set and not the other,
           // so we can force a past date or a future date. TMDB Requires both values if one is set!
           'primary_release_date.gte':
@@ -527,6 +535,8 @@ class TheMovieDb extends ExternalAPI {
     sortBy = 'popularity.desc',
     page = 1,
     language = 'en',
+    limitRegion = 'US',
+    limitOriginalLanguage = 'en',
     firstAirDateGte,
     firstAirDateLte,
     includeEmptyReleaseDate = false,
@@ -559,7 +569,7 @@ class TheMovieDb extends ExternalAPI {
           sort_by: sortBy,
           page,
           language,
-          region: this.region,
+          region: limitRegion,
           // Set our release date values, but check if one is set and not the other,
           // so we can force a past date or a future date. TMDB Requires both values if one is set!
           'first_air_date.gte':
@@ -570,12 +580,7 @@ class TheMovieDb extends ExternalAPI {
             !firstAirDateLte && firstAirDateGte
               ? defaultFutureDate
               : firstAirDateLte,
-          with_original_language:
-            originalLanguage && originalLanguage !== 'all'
-              ? originalLanguage
-              : originalLanguage === 'all'
-              ? undefined
-              : this.originalLanguage,
+          with_original_language: limitOriginalLanguage,
           include_null_first_air_dates: includeEmptyReleaseDate,
           with_genres: genre,
           with_networks: network,
@@ -600,6 +605,8 @@ class TheMovieDb extends ExternalAPI {
   public getUpcomingMovies = async ({
     page = 1,
     language = 'en',
+    limitRegion = 'US',
+    limitOriginalLanguage = 'en',
   }: {
     page: number;
     language: string;
@@ -611,8 +618,8 @@ class TheMovieDb extends ExternalAPI {
           params: {
             page,
             language,
-            region: this.region,
-            originalLanguage: this.originalLanguage,
+            region: limitRegion,
+            originalLanguage: limitOriginalLanguage,
           },
         }
       );
@@ -627,6 +634,7 @@ class TheMovieDb extends ExternalAPI {
     page = 1,
     timeWindow = 'day',
     language = 'en',
+    limitRegion = 'US',
   }: {
     page?: number;
     timeWindow?: 'day' | 'week';
@@ -639,7 +647,7 @@ class TheMovieDb extends ExternalAPI {
           params: {
             page,
             language,
-            region: this.region,
+            region: limitRegion,
           },
         }
       );
